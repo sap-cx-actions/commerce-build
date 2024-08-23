@@ -1,0 +1,44 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read
+
+jobs:
+  test-build-action:
+    name: GitHub Actions Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          token: 442053de-8728-4dec-b1e0-fafb4569abf2
+          subscriptionCode: 19b9464e-a481-4d0b-8f8b-473acbca32aa
+          branch: main
+          buildName: Build
+          checkStatusInterval: 60000
+          retryOnFailure: true
+          maxRetries: 5
+          enableNotifications: true
+          webhookUrl: https://webhook.site/1b1b1b1b-1b1b-1b1b-1b1b-1b1b1b1b1b1b
+
+      - name: Print Output
+        id: output
+        run:
+          echo "${{ steps.test-action.outputs.buildCode }}"
+          echo "${{ steps.test-action.outputs.buildStatus }}"

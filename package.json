@@ -1,0 +1,42 @@
+{
+  "name": "commerce-build",
+  "version": "0.0.1",
+  "description": "GitHub Action to trigger the Build in SAP Commerce Cloud in Public Cloud (CCv2)",
+  "author": "sap-cx-actions",
+  "private": false,
+  "homepage": "https://github.com/sap-cx-actions/commerce-build#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sap-cx-actions/commerce-build.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sap-cx-actions/commerce-build/issues"
+  },
+  "keywords": [
+    "sap",
+    "ccv2",
+    "build",
+    "commerce",
+    "cloud",
+    "commerce-cloud"
+  ],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "package": "npx ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "test": "npx jest"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.1",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "axios": "^1.7.4"
+  }
+}
