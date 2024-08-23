@@ -28,6 +28,7 @@
   },
   "scripts": {
     "package": "npx ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "package:watch": "npm run package -- --watch",
     "test": "npx jest"
   },
   "license": "MIT",

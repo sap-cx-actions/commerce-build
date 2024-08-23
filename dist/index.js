@@ -27321,7 +27321,8 @@ async function run() {
         catch (error) {
             core.setFailed(`Error fetching data: ${error.message}`);
         }
-        core.setOutput('time', new Date().toTimeString());
+        core.setOutput('buildCode', '20240824.1');
+        core.setOutput('buildStatus', 'SUCCESS');
     }
     catch (error) {
         // Fail the workflow run if an error occurs

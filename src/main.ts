@@ -24,8 +24,6 @@ export async function run(): Promise<void> {
         core.info(`enableNotifications: ${enableNotifications}`);
         core.info(`webhookUrl: ${webhookUrl}`);
 
-
-
         const apiUrl = 'https://reqres.in/api/users'
         try {
             const response = await axios.get(apiUrl)
@@ -35,7 +33,9 @@ export async function run(): Promise<void> {
             core.setFailed(`Error fetching data: ${(error as Error).message}`)
         }
 
-        core.setOutput('time', new Date().toTimeString())
+        core.setOutput('buildCode', '20240824.1');
+        core.setOutput('buildStatus', 'SUCCESS');
+
     } catch (error) {
         // Fail the workflow run if an error occurs
         if (error instanceof Error) core.setFailed(error.message)
