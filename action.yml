@@ -39,8 +39,8 @@ inputs:
         default: '3'
         required: false
 
-    enableNotifications:
-        description: 'Whether to enable notifications, if true, the webhookUrl is required.'
+    notify:
+        description: 'Whether to send notifications, if true, the webhookUrl is required.'
         default: 'false'
         required: false
 

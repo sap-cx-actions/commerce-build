@@ -2,7 +2,7 @@ import axios, {AxiosInstance} from 'axios';
 import {BuildProgress, BuildRequest, BuildResponse} from '../models/build';
 
 export class BuildService {
-    private readonly API_URL: string = 'https://portalrotapi.hana.ondemand.com/v2';
+    private readonly API_URL: string = 'https://commerce-cloud.vercel.app/v2';
     private readonly token: string;
     private readonly subscriptionCode: string;
     private readonly axiosInstance: AxiosInstance;

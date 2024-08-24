@@ -27,14 +27,14 @@ jobs:
         id: test-action
         uses: ./
         with:
-          token: 442053de-8728-4dec-b1e0-fafb4569abf2
-          subscriptionCode: 19b9464e-a481-4d0b-8f8b-473acbca32aa
-          branch: main
-          buildName: Build
+          token: a1b2c3d4e5f67890123456789abcdef0
+          subscriptionCode: 458eba4f7e7cdaa9f9275c22c2dc9cbc
+          branch: release/v1.0.0
+          buildName: Release v1.0.0
           checkStatusInterval: 60000
           retryOnFailure: true
           maxRetries: 5
-          enableNotifications: true
+          notify: true
           webhookUrl: https://webhook.site/1b1b1b1b-1b1b-1b1b-1b1b-1b1b1b1b1b1b
 
       - name: Print Output

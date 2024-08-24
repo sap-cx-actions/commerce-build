@@ -27290,34 +27290,75 @@ const core = __importStar(__nccwpck_require__(2186));
 const build_1 = __nccwpck_require__(6349);
 const BuildService_1 = __nccwpck_require__(4490);
 async function run() {
+    let buildCode;
+    let buildStatus;
     try {
         core.info('Triggering the CCv2 Cloud build');
         const token = core.getInput('token');
         const subscriptionCode = core.getInput('subscriptionCode');
         const branch = core.getInput('branch');
         const buildName = core.getInput('buildName');
-        const checkStatusInterval = core.getInput('checkStatusInterval');
-        const retryOnFailure = core.getInput('retryOnFailure');
-        const maxRetries = core.getInput('maxRetries');
-        const enableNotifications = core.getInput('enableNotifications');
+        const checkStatusInterval = parseInt(core.getInput('checkStatusInterval'), 10);
+        const retryOnFailure = core.getInput('retryOnFailure') === 'true';
+        const maxRetries = parseInt(core.getInput('maxRetries'), 10);
+        const notify = core.getInput('notify') === 'true';
         const webhookUrl = core.getInput('webhookUrl');
         const buildService = new BuildService_1.BuildService(token, subscriptionCode);
-        const buildRequest = {
-            applicationCode: '',
-            branch: branch,
-            name: buildName
-        };
-        try {
-            const getBuild = await buildService.getBuild('20240823.3');
-            core.info(`getBuild Response: ${JSON.stringify(getBuild, null, 2)}`);
+        let retries = 0;
+        while (retries < maxRetries) {
+            try {
+                // Create a new build
+                const buildRequest = {
+                    applicationCode: '',
+                    branch: branch,
+                    name: buildName
+                };
+                const buildResponse = await buildService.createBuild(buildRequest);
+                core.debug(`Create Build Response: ${JSON.stringify(buildResponse, null, 2)}`);
+                buildCode = buildResponse.code;
+                // Get the build details
+                if (buildCode) {
+                    const getBuild = await buildService.getBuild(buildCode);
+                    core.debug(`Get Build Response: ${JSON.stringify(getBuild, null, 2)}`);
+                    buildStatus = getBuild.status; //TODO check while building if the status is BUILDING or something else
+                }
+                // Send notification about build start.
+                // TODO: Call notification service to send notification about build start.
+                // Check build progress until status is SUCCESS or FAIL
+                while (buildStatus === build_1.BuildStatus.BUILDING) {
+                    await new Promise(resolve => setTimeout(resolve, checkStatusInterval));
+                    if (buildCode) {
+                        const buildProgress = await buildService.getBuildProgress(buildCode);
+                        core.info(`Build Progress: ${JSON.stringify(buildProgress, null, 2)}`);
+                        buildStatus = buildProgress.buildStatus;
+                    }
+                }
+                if (buildStatus === build_1.BuildStatus.SUCCESS) {
+                    // Send notification about build success
+                    // TODO: Call notification service to send notification about build success.
+                    break; // Exit loop if build is successful
+                }
+                else if (buildStatus === build_1.BuildStatus.FAIL) {
+                    core.error('Build failed.');
+                    if (!retryOnFailure) {
+                        core.setFailed('Build failed and retry is disabled.');
+                        return;
+                    }
+                    retries++;
+                    if (retries >= maxRetries) {
+                        core.setFailed(`Build failed after ${maxRetries} retries.`);
+                        return;
+                    }
+                    core.info(`Retrying build creation (${retries}/${maxRetries})...`);
+                }
+            }
+            catch (error) {
+                core.setFailed(`Error during build process: ${error.message}`);
+                return;
+            }
         }
-        catch (error) {
-            core.setFailed(`Error fetching data: ${error.message}`);
-        }
-        // core.setOutput('buildCode', buildResponse.code);
-        // core.setOutput('buildStatus', buildResponse.status);
-        core.setOutput('buildCode', '20240823.3');
-        core.setOutput('buildStatus', build_1.BuildStatus.SUCCESS);
+        core.setOutput('buildCode', buildCode);
+        core.setOutput('buildCode', buildStatus);
     }
     catch (error) {
         if (error instanceof Error)
@@ -27438,7 +27479,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BuildService = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 class BuildService {
-    API_URL = 'https://portalrotapi.hana.ondemand.com/v2';
+    API_URL = 'https://commerce-cloud.vercel.app/v2';
     token;
     subscriptionCode;
     axiosInstance;
