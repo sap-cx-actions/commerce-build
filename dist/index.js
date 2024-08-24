@@ -27303,19 +27303,15 @@ async function run() {
         const maxRetries = core.getInput('maxRetries');
         const enableNotifications = core.getInput('enableNotifications');
         const webhookUrl = core.getInput('webhookUrl');
-        core.info(`token: ${token}`);
-        core.info(`subscriptionCode: ${subscriptionCode}`);
-        core.info(`branch: ${branch}`);
-        core.info(`buildName: ${buildName}`);
-        core.info(`checkStatusInterval: ${checkStatusInterval}`);
-        core.info(`retryOnFailure: ${retryOnFailure}`);
-        core.info(`maxRetries: ${maxRetries}`);
-        core.info(`enableNotifications: ${enableNotifications}`);
-        core.info(`webhookUrl: ${webhookUrl}`);
-        const apiUrl = 'https://reqres.in/api/users';
+        const apiUrl = `https://portalrotapi.hana.ondemand.com/v2/subscriptions/${subscriptionCode}/builds/20240823.3`;
         try {
-            const response = await axios_1.default.get(apiUrl);
+            const response = await axios_1.default.get(apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             core.info(`Response status: ${response.status}`);
+            core.info(`Build Status: ${response.data.status}`);
             core.info(`Response data: ${JSON.stringify(response.data, null, 2)}`);
         }
         catch (error) {

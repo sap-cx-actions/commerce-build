@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import axios from 'axios'
+import {BuildResponse} from "./models/build";
 
 export async function run(): Promise<void> {
     try {
@@ -14,20 +15,16 @@ export async function run(): Promise<void> {
         const enableNotifications: string = core.getInput('enableNotifications');
         const webhookUrl: string = core.getInput('webhookUrl');
 
-        core.info(`token: ${token}`);
-        core.info(`subscriptionCode: ${subscriptionCode}`);
-        core.info(`branch: ${branch}`);
-        core.info(`buildName: ${buildName}`);
-        core.info(`checkStatusInterval: ${checkStatusInterval}`);
-        core.info(`retryOnFailure: ${retryOnFailure}`);
-        core.info(`maxRetries: ${maxRetries}`);
-        core.info(`enableNotifications: ${enableNotifications}`);
-        core.info(`webhookUrl: ${webhookUrl}`);
+        const apiUrl = `https://portalrotapi.hana.ondemand.com/v2/subscriptions/${subscriptionCode}/builds/20240823.3`
 
-        const apiUrl = 'https://reqres.in/api/users'
         try {
-            const response = await axios.get(apiUrl)
+            const response = await axios.get<BuildResponse>(apiUrl, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             core.info(`Response status: ${response.status}`)
+            core.info(`Build Status: ${response.data.status}`)
             core.info(`Response data: ${JSON.stringify(response.data, null, 2)}`)
         } catch (error) {
             core.setFailed(`Error fetching data: ${(error as Error).message}`)
