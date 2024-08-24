@@ -49,7 +49,7 @@ export async function run(): Promise<void> {
                     await new Promise(resolve => setTimeout(resolve, checkStatusInterval));
                     if (buildCode) {
                         const buildProgress: BuildProgress = await buildService.getBuildProgress(buildCode);
-                        core.info(`Build Progress: ${JSON.stringify(buildProgress, null, 2)}`);
+                        core.debug(`Build Progress: ${JSON.stringify(buildProgress, null, 2)}`);
                         buildStatus = buildProgress.buildStatus;
                     }
                 }
