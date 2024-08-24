@@ -27334,8 +27334,9 @@ async function run() {
                     }
                 }
                 if (buildStatus === build_1.BuildStatus.SUCCESS) {
-                    // Send notification about build success
-                    // TODO: Call notification service to send notification about build success.
+                    if (notify) {
+                        core.info('Sending notification about build success...'); // TODO: Call notification service to send notification about build success.
+                    }
                     break; // Exit loop if build is successful
                 }
                 else if (buildStatus === build_1.BuildStatus.FAIL) {
@@ -27358,7 +27359,7 @@ async function run() {
             }
         }
         core.setOutput('buildCode', buildCode);
-        core.setOutput('buildCode', buildStatus);
+        core.setOutput('buildStatus', buildStatus);
     }
     catch (error) {
         if (error instanceof Error)
