@@ -27284,13 +27284,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
 const core = __importStar(__nccwpck_require__(2186));
-const axios_1 = __importDefault(__nccwpck_require__(8757));
+const build_1 = __nccwpck_require__(6349);
+const BuildService_1 = __nccwpck_require__(4490);
 async function run() {
     try {
         core.info('Triggering the CCv2 Cloud build');
@@ -27303,29 +27301,210 @@ async function run() {
         const maxRetries = core.getInput('maxRetries');
         const enableNotifications = core.getInput('enableNotifications');
         const webhookUrl = core.getInput('webhookUrl');
-        const apiUrl = `https://portalrotapi.hana.ondemand.com/v2/subscriptions/${subscriptionCode}/builds/20240823.3`;
+        const buildService = new BuildService_1.BuildService(token, subscriptionCode);
+        const buildRequest = {
+            applicationCode: '',
+            branch: branch,
+            name: buildName
+        };
         try {
-            const response = await axios_1.default.get(apiUrl, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            core.info(`Response status: ${response.status}`);
-            core.info(`Build Status: ${response.data.status}`);
-            core.info(`Response data: ${JSON.stringify(response.data, null, 2)}`);
+            const getBuild = await buildService.getBuild('20240823.3');
+            core.info(`getBuild Response: ${JSON.stringify(getBuild, null, 2)}`);
         }
         catch (error) {
             core.setFailed(`Error fetching data: ${error.message}`);
         }
-        core.setOutput('buildCode', '20240824.1');
-        core.setOutput('buildStatus', 'SUCCESS');
+        // core.setOutput('buildCode', buildResponse.code);
+        // core.setOutput('buildStatus', buildResponse.status);
+        core.setOutput('buildCode', '20240823.3');
+        core.setOutput('buildStatus', build_1.BuildStatus.SUCCESS);
     }
     catch (error) {
-        // Fail the workflow run if an error occurs
         if (error instanceof Error)
             core.setFailed(error.message);
     }
 }
+
+
+/***/ }),
+
+/***/ 5802:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 7733:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 3117:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 3808:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BuildStatus = void 0;
+var BuildStatus;
+(function (BuildStatus) {
+    BuildStatus["SUCCESS"] = "SUCCESS";
+    BuildStatus["FAIL"] = "FAIL";
+    BuildStatus["BUILDING"] = "BUILDING";
+    BuildStatus["CANCELED"] = "CANCELED";
+})(BuildStatus || (exports.BuildStatus = BuildStatus = {}));
+
+
+/***/ }),
+
+/***/ 3104:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 620:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 6349:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(5802), exports);
+__exportStar(__nccwpck_require__(7733), exports);
+__exportStar(__nccwpck_require__(3117), exports);
+__exportStar(__nccwpck_require__(3808), exports);
+__exportStar(__nccwpck_require__(3104), exports);
+__exportStar(__nccwpck_require__(620), exports);
+
+
+/***/ }),
+
+/***/ 4490:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BuildService = void 0;
+const axios_1 = __importDefault(__nccwpck_require__(8757));
+class BuildService {
+    API_URL = 'https://portalrotapi.hana.ondemand.com/v2';
+    token;
+    subscriptionCode;
+    axiosInstance;
+    constructor(token, subscriptionCode) {
+        this.token = token;
+        this.subscriptionCode = subscriptionCode;
+        this.axiosInstance = axios_1.default.create({
+            baseURL: this.API_URL,
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
+        });
+    }
+    /**
+     * Creates a new build for a given subscription code.
+     *
+     * @param buildRequest - The build request to create a build for.
+     * @returns A promise that resolves to the build response.
+     * @throws An error if the build cannot be created.
+     */
+    async createBuild(buildRequest) {
+        const apiUrl = `/subscriptions/${this.subscriptionCode}/builds`;
+        try {
+            const response = await this.axiosInstance.post(apiUrl, buildRequest);
+            return response.data;
+        }
+        catch (error) {
+            throw new Error(`Error creating build: ${error.message}`);
+        }
+    }
+    /**
+     * Fetches the build details for a given build code.
+     *
+     * @param buildCode - The code of the build to fetch details for.
+     * @returns A promise that resolves to the build response.
+     * @throws An error if the build response cannot be fetched.
+     */
+    async getBuild(buildCode) {
+        const apiUrl = `/subscriptions/${this.subscriptionCode}/builds/${buildCode}`;
+        try {
+            const response = await this.axiosInstance.get(apiUrl);
+            return response.data;
+        }
+        catch (error) {
+            throw new Error(`Error fetching build response: ${error.message}`);
+        }
+    }
+    /**
+     * Fetches the build progress for a given build code.
+     *
+     * @param buildCode - The code of the build to fetch progress for.
+     * @returns A promise that resolves to the build progress.
+     * @throws An error if the build progress cannot be fetched.
+     */
+    async getBuildProgress(buildCode) {
+        const apiUrl = `/subscriptions/${this.subscriptionCode}/builds/${buildCode}/progress`;
+        try {
+            const response = await this.axiosInstance.get(apiUrl);
+            return response.data;
+        }
+        catch (error) {
+            throw new Error(`Error fetching build response: ${error.message}`);
+        }
+    }
+}
+exports.BuildService = BuildService;
 
 
 /***/ }),

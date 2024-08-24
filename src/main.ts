@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
-import axios from 'axios'
-import {BuildResponse} from "./models/build";
+import {BuildProgress, BuildRequest, BuildResponse, BuildStatus} from "./models/build";
+import {BuildService} from "./services/BuildService";
+
 
 export async function run(): Promise<void> {
     try {
@@ -15,26 +16,25 @@ export async function run(): Promise<void> {
         const enableNotifications: string = core.getInput('enableNotifications');
         const webhookUrl: string = core.getInput('webhookUrl');
 
-        const apiUrl = `https://portalrotapi.hana.ondemand.com/v2/subscriptions/${subscriptionCode}/builds/20240823.3`
+        const buildService = new BuildService(token, subscriptionCode);
+
+        const buildRequest: BuildRequest = {
+            applicationCode: '',
+            branch: branch,
+            name: buildName
+        };
 
         try {
-            const response = await axios.get<BuildResponse>(apiUrl, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            core.info(`Response status: ${response.status}`)
-            core.info(`Build Status: ${response.data.status}`)
-            core.info(`Response data: ${JSON.stringify(response.data, null, 2)}`)
+            const getBuild: BuildResponse = await buildService.getBuild('20240823.3');
+            core.info(`getBuild Response: ${JSON.stringify(getBuild, null, 2)}`);
         } catch (error) {
-            core.setFailed(`Error fetching data: ${(error as Error).message}`)
+            core.setFailed(`Error fetching data: ${(error as Error).message}`);
         }
-
-        core.setOutput('buildCode', '20240824.1');
-        core.setOutput('buildStatus', 'SUCCESS');
-
+        // core.setOutput('buildCode', buildResponse.code);
+        // core.setOutput('buildStatus', buildResponse.status);
+        core.setOutput('buildCode', '20240823.3');
+        core.setOutput('buildStatus', BuildStatus.SUCCESS);
     } catch (error) {
-        // Fail the workflow run if an error occurs
         if (error instanceof Error) core.setFailed(error.message)
     }
 }
