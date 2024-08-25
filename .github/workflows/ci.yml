@@ -39,6 +39,5 @@ jobs:
 
       - name: Print Output
         id: output
-        run:
-          echo "${{ steps.test-action.outputs.buildCode }}"
-          echo "${{ steps.test-action.outputs.buildStatus }}"
+        run: |
+          echo "Build Code: ${{ steps.test-action.outputs.buildCode }}, Build Status: ${{ steps.test-action.outputs.buildStatus }}"
