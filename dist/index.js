@@ -27329,7 +27329,7 @@ async function run() {
                     await new Promise(resolve => setTimeout(resolve, checkStatusInterval));
                     if (buildCode) {
                         const buildProgress = await buildService.getBuildProgress(buildCode);
-                        core.info(`Build Progress: ${JSON.stringify(buildProgress, null, 2)}`);
+                        core.debug(`Build Progress: ${JSON.stringify(buildProgress, null, 2)}`);
                         buildStatus = buildProgress.buildStatus;
                     }
                 }
@@ -27490,7 +27490,7 @@ class BuildService {
         this.axiosInstance = axios_1.default.create({
             baseURL: this.API_URL,
             headers: {
-                'Authorization': `Bearer ${this.token}`
+                Authorization: `Bearer ${this.token}`
             }
         });
     }
