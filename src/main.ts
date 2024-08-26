@@ -1,10 +1,5 @@
 import * as core from '@actions/core'
-import {
-  BuildProgress,
-  BuildRequest,
-  BuildResponse,
-  BuildStatus
-} from './models/build'
+import { BuildProgress, BuildRequest, BuildResponse, BuildStatus } from './models/build'
 import { BuildService } from './services/BuildService'
 
 export async function run(): Promise<void> {
@@ -17,10 +12,7 @@ export async function run(): Promise<void> {
     const subscriptionCode: string = core.getInput('subscriptionCode')
     const branch: string = core.getInput('branch')
     const buildName: string = core.getInput('buildName')
-    const checkStatusInterval: number = parseInt(
-      core.getInput('checkStatusInterval'),
-      10
-    )
+    const checkStatusInterval: number = parseInt(core.getInput('checkStatusInterval'), 10)
     const retryOnFailure: boolean = core.getInput('retryOnFailure') === 'true'
     const maxRetries: number = parseInt(core.getInput('maxRetries'), 10)
     const notify: boolean = core.getInput('notify') === 'true'
@@ -33,16 +25,13 @@ export async function run(): Promise<void> {
       try {
         // Create a new build
         const buildRequest: BuildRequest = {
-          applicationCode: '',
+          applicationCode: 'commerce-cloud',
           branch: branch,
           name: buildName
         }
 
-        const buildResponse: BuildResponse =
-          await buildService.createBuild(buildRequest)
-        core.debug(
-          `Create Build Response: ${JSON.stringify(buildResponse, null, 2)}`
-        )
+        const buildResponse: BuildResponse = await buildService.createBuild(buildRequest)
+        core.debug(`Create Build Response: ${JSON.stringify(buildResponse, null, 2)}`)
         buildCode = buildResponse.code
 
         // Get the build details
@@ -59,11 +48,8 @@ export async function run(): Promise<void> {
         while (buildStatus === BuildStatus.BUILDING) {
           await new Promise(resolve => setTimeout(resolve, checkStatusInterval))
           if (buildCode) {
-            const buildProgress: BuildProgress =
-              await buildService.getBuildProgress(buildCode)
-            core.debug(
-              `Build Progress: ${JSON.stringify(buildProgress, null, 2)}`
-            )
+            const buildProgress: BuildProgress = await buildService.getBuildProgress(buildCode)
+            core.debug(`Build Progress: ${JSON.stringify(buildProgress, null, 2)}`)
             buildStatus = buildProgress.buildStatus
           }
         }
@@ -87,9 +73,7 @@ export async function run(): Promise<void> {
           core.info(`Retrying build creation (${retries}/${maxRetries})...`)
         }
       } catch (error) {
-        core.setFailed(
-          `Error during build process: ${(error as Error).message}`
-        )
+        core.setFailed(`Error during build process: ${(error as Error).message}`)
         return
       }
     }

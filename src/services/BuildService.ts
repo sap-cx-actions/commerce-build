@@ -29,10 +29,7 @@ export class BuildService {
   async createBuild(buildRequest: BuildRequest): Promise<BuildResponse> {
     const apiUrl = `/subscriptions/${this.subscriptionCode}/builds`
     try {
-      const response = await this.axiosInstance.post<BuildResponse>(
-        apiUrl,
-        buildRequest
-      )
+      const response = await this.axiosInstance.post<BuildResponse>(apiUrl, buildRequest)
       return response.data
     } catch (error) {
       throw new Error(`Error creating build: ${(error as Error).message}`)
@@ -52,9 +49,7 @@ export class BuildService {
       const response = await this.axiosInstance.get<BuildResponse>(apiUrl)
       return response.data
     } catch (error) {
-      throw new Error(
-        `Error fetching build response: ${(error as Error).message}`
-      )
+      throw new Error(`Error fetching build response: ${(error as Error).message}`)
     }
   }
 
@@ -71,9 +66,7 @@ export class BuildService {
       const response = await this.axiosInstance.get<BuildProgress>(apiUrl)
       return response.data
     } catch (error) {
-      throw new Error(
-        `Error fetching build response: ${(error as Error).message}`
-      )
+      throw new Error(`Error fetching build response: ${(error as Error).message}`)
     }
   }
 }
