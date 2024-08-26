@@ -18,7 +18,9 @@
     "build",
     "commerce",
     "cloud",
-    "commerce-cloud"
+    "commerce-cloud",
+    "sap-commerce-cloud",
+    "cicd"
   ],
   "exports": {
     ".": "./dist/index.js"
