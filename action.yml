@@ -1,0 +1,60 @@
+name: 'commerce-build'
+description: 'Triggers the build process for the SAP Commerce Cloud project in the CCv2.'
+author: 'sap-cx-actions'
+
+# Branding, this will appear on the GitHub Marketplace.
+branding:
+  icon: 'package'
+  color: 'blue'
+
+inputs:
+    token:
+        description: 'Your CCv2 API token.'
+        required: true
+
+    subscriptionCode:
+        description: 'The Subscription Code of the CCv2 environment.'
+        required: true
+
+    branch:
+        description: 'The branch or tag to build.'
+        required: true
+
+    buildName:
+        description: 'The name of the build.'
+        required: false
+
+    checkStatusInterval:
+        description: 'The interval in milliseconds to check the status of the build. Default is 300000 ms (5 minutes).'
+        default: '300000' # 5 minutes
+        required: false
+
+    retryOnFailure:
+        description: 'Whether to retry the build if it fails.'
+        default: 'false'
+        required: false
+
+    maxRetries:
+        description: 'The maximum number of retries. Default is 3.'
+        default: '3'
+        required: false
+
+    notify:
+        description: 'Whether to send notifications, if true, the webhookUrl is required.'
+        default: 'false'
+        required: false
+
+    webhookUrl:
+        description: 'The URL to send notifications to.'
+        required: false
+
+outputs:
+  buildCode:
+    description: 'The code of the build.'
+
+  buildStatus:
+    description: 'The status of the build.'
+
+runs:
+  using: node20
+  main: dist/index.js

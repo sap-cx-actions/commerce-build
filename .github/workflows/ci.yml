@@ -1,0 +1,43 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read
+
+jobs:
+  test-build-action:
+    name: GitHub Actions Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          token: ${{ secrets.SAP_CCV2_TOKEN }}
+          subscriptionCode: ${{ secrets.SAP_CCV2_SUB_CODE }}
+          branch: release/v1.0.0
+          buildName: Release v1.0.0
+          checkStatusInterval: 60000
+          retryOnFailure: true
+          maxRetries: 5
+          notify: true
+          webhookUrl: ${{ secrets.WEBHOOK_URL }}
+
+      - name: Print Output
+        id: output
+        run: |
+          echo "Build Code: ${{ steps.test-action.outputs.buildCode }}, Build Status: ${{ steps.test-action.outputs.buildStatus }}"
