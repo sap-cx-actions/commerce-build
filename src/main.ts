@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import { BuildProgress, BuildRequest, BuildResponse, BuildStatus } from './models/build'
+import { BuildProgress, BuildRequest, BuildResponse, BuildStatus } from '@sap-cx-actions/models'
 import { BuildService } from './services/BuildService'
 
 export async function run(): Promise<void> {

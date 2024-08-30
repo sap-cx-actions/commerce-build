@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { BuildProgress, BuildRequest, BuildResponse } from '../models/build'
+import { BuildProgress, BuildRequest, BuildResponse } from '@sap-cx-actions/models'
 
 export class BuildService {
   private readonly API_URL: string = 'https://commerce-cloud.vercel.app/v2'
