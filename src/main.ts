@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import { BuildProgress, BuildRequest, BuildResponse, BuildStatus } from '@sap-cx-actions/models'
-import { BuildService } from './services/BuildService'
+import { BuildService } from '@sap-cx-actions/commerce-services'
 
 export async function run(): Promise<void> {
   let buildCode: string | undefined
