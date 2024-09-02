@@ -1,15 +1,15 @@
-import * as main from '../src/main'
+import * as main from '../src/main';
 
 jest.mock('../src/main', () => ({
   run: jest.fn()
-}))
+}));
 
-const runMock = jest.spyOn(main, 'run').mockImplementation()
+const runMock = jest.spyOn(main, 'run').mockImplementation();
 
 describe('index', () => {
   it('calls run when imported', async () => {
-    require('../src/index')
+    require('../src/index');
 
-    expect(runMock).toHaveBeenCalled()
-  })
-})
+    expect(runMock).toHaveBeenCalled();
+  });
+});
