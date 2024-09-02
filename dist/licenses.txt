@@ -59,8 +59,6 @@ IN THE SOFTWARE.
 
 @sap-cx-actions/commerce-services
 
-@sap-cx-actions/models
-
 asynckit
 MIT
 The MIT License (MIT)
