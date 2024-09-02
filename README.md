@@ -19,6 +19,9 @@ Public Cloud (CCv2) projects.
   - [ ] Create Build: Triggered with build is created in CCv2.
   - [ ] Build Progress: Check the build status and send notifications. (Is it required?)
   - [ ] Build Completed: Triggered when the build is completed in CCv2 whether it is success or failure.
+  - [ ] Slack: Send notifications to Slack.
+  - [ ] Email: Send notifications to email.
+  - [ ] Microsoft Teams: Send notifications to Microsoft Teams.
 
 ## Getting Started
 
