@@ -1,4 +1,4 @@
-name: 'sap-commerce-build'
+name: 'commerce-build'
 description: 'Triggers the build process for the SAP Commerce Cloud project in the CCv2.'
 author: 'sap-cx-actions'
 
