@@ -21,6 +21,10 @@ Public Cloud (CCv2) projects.
   - [ ] Build Completed: Triggered when the build is completed in CCv2 whether it is success or failure.
   - [ ] Slack: Send notifications to Slack.
   - [ ] Email: Send notifications to email.
+    - [ ] SendGrid: Send notifications using SendGrid.
+    - [ ] AWS SES: Send notifications using AWS SES.
+    - [ ] Custom SMTP: Send notifications using custom SMTP.
+    - [ ] Similar SMTP services.
   - [ ] Microsoft Teams: Send notifications to Microsoft Teams.
 
 ## Getting Started
@@ -72,7 +76,7 @@ jobs:
           retryOnFailure: false
           maxRetries: 3
           notify: false
-          webhookUrl: ''
+          destination: ''
 ```
 
 ### Inputs
@@ -86,7 +90,7 @@ jobs:
 - `retryOnFailure` - **Optional**. Retry the build if failed. Default is false.
 - `maxRetries` - **Optional**. The maximum number of retries. Default is 3.
 - `notify` - **Optional**. Send notifications on the build status. Default is false.
-- `webhookUrl` - **Optional**. The webhook URL to send notifications. Default is ''.
+- `destination` - **Optional**. The URL or the email addresses (comma separated) to send notifications. Default is ''.
 
 ### Outputs
 

@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
-import { BuildRequest, BuildResponse, BuildStatus, ActionInput } from '@sap-cx-actions/models';
+import { BuildRequest, BuildResponse, BuildStatus, ActionInput, NotificationType } from '@sap-cx-actions/models';
 import { BuildService } from '@sap-cx-actions/commerce-services';
+import { Notifier } from '@sap-cx-actions/notifier';
 import { getBuildName } from './utils';
 
 export async function run(): Promise<void> {
@@ -18,10 +19,11 @@ export async function run(): Promise<void> {
       retryOnFailure: core.getBooleanInput('retryOnFailure'),
       maxRetries: parseInt(core.getInput('maxRetries'), 10),
       notify: core.getBooleanInput('notify'),
-      webhookUrl: core.getInput('webhookUrl')
+      destination: core.getInput('destination')
     };
 
     const buildService = new BuildService(input.token, input.subscriptionCode);
+    const notifier = new Notifier(input.destination);
 
     // Create a new build
     const buildRequest: BuildRequest = {
@@ -40,12 +42,11 @@ export async function run(): Promise<void> {
         const getBuild: BuildResponse = await buildService.getBuild(buildCode);
         core.debug(`Get Build Response: ${JSON.stringify(getBuild, null, 2)}`);
         buildStatus = getBuild.status;
-      }
 
-      if (input.notify && input.webhookUrl) {
-        // TODO: Call notification service to send notification about build start.
-        // Send notification about build start.
-        // notifier.sendNotification(Notification.BUILD_STARTED, getBuild);
+        if (input.notify && input.destination) {
+          core.debug('Sending notification...');
+          await notifier.notify(NotificationType.BUILD_STARTED, getBuild);
+        }
       }
 
       core.setOutput('buildCode', buildCode);
