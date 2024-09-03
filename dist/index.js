@@ -28898,26 +28898,29 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
 const core = __importStar(__nccwpck_require__(2186));
 const commerce_services_1 = __nccwpck_require__(2402);
+const utils_1 = __nccwpck_require__(1314);
 async function run() {
     let buildCode;
     let buildStatus;
     try {
         core.info('Triggering the CCv2 Cloud build');
-        const token = core.getInput('token');
-        const subscriptionCode = core.getInput('subscriptionCode');
-        const branch = core.getInput('branch');
-        const buildName = core.getInput('buildName');
-        const checkStatusInterval = parseInt(core.getInput('checkStatusInterval'), 10);
-        const retryOnFailure = core.getInput('retryOnFailure') === 'true';
-        const maxRetries = parseInt(core.getInput('maxRetries'), 10);
-        const notify = core.getInput('notify') === 'true';
-        const webhookUrl = core.getInput('webhookUrl');
-        const buildService = new commerce_services_1.BuildService(token, subscriptionCode);
+        const input = {
+            token: core.getInput('token'),
+            subscriptionCode: core.getInput('subscriptionCode'),
+            branch: core.getInput('branch'),
+            buildName: await (0, utils_1.getBuildName)(core.getInput('branch'), core.getInput('buildName')),
+            checkStatusInterval: parseInt(core.getInput('checkStatusInterval'), 10),
+            retryOnFailure: core.getBooleanInput('retryOnFailure'),
+            maxRetries: parseInt(core.getInput('maxRetries'), 10),
+            notify: core.getBooleanInput('notify'),
+            webhookUrl: core.getInput('webhookUrl')
+        };
+        const buildService = new commerce_services_1.BuildService(input.token, input.subscriptionCode);
         // Create a new build
         const buildRequest = {
             applicationCode: 'commerce-cloud',
-            branch: branch,
-            name: buildName
+            branch: input.branch,
+            name: input.buildName
         };
         try {
             const buildResponse = await buildService.createBuild(buildRequest);
@@ -28927,11 +28930,12 @@ async function run() {
             if (buildCode) {
                 const getBuild = await buildService.getBuild(buildCode);
                 core.debug(`Get Build Response: ${JSON.stringify(getBuild, null, 2)}`);
-                buildStatus = getBuild.status; //TODO check while building if the status is BUILDING or something else
+                buildStatus = getBuild.status;
             }
-            if (notify && webhookUrl) {
+            if (input.notify && input.webhookUrl) {
                 // TODO: Call notification service to send notification about build start.
                 // Send notification about build start.
+                // notifier.sendNotification(Notification.BUILD_STARTED, getBuild);
             }
             core.setOutput('buildCode', buildCode);
             core.setOutput('buildStatus', buildStatus);
@@ -28945,6 +28949,23 @@ async function run() {
         if (error instanceof Error)
             core.setFailed(error.message);
     }
+}
+
+
+/***/ }),
+
+/***/ 1314:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getBuildName = getBuildName;
+async function getBuildName(branch, buildName) {
+    if (!buildName) {
+        return branch.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    }
+    return buildName;
 }
 
 
