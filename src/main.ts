@@ -49,7 +49,7 @@ export async function run(): Promise<void> {
       }
 
       await core.summary
-        .addHeading('SAP Commerce Cloud - Build Summary')
+        .addHeading('SAP Commerce Cloud - Build Summary :package:')
         .addTable([
           [
             { data: 'Build Code', header: true },
