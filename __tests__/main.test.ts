@@ -1,15 +1,16 @@
-import * as core from '@actions/core';
 import { run } from '../src/main';
 import { BuildService } from '@sap-cx-actions/commerce-services';
-import { BuildRequest, BuildResponse, BuildStatus } from '@sap-cx-actions/models';
 import { Notifier } from '@sap-cx-actions/notifier';
+import { BuildRequest, BuildResponse, BuildStatus } from '@sap-cx-actions/models';
+import * as core from '@actions/core';
 
-jest.mock('@actions/core');
 jest.mock('@sap-cx-actions/commerce-services');
 jest.mock('@sap-cx-actions/notifier');
+jest.mock('@actions/core');
 
-describe('run', () => {
+describe('main', () => {
   let getInputMock: jest.SpyInstance;
+  let getBooleanInputMock: jest.SpyInstance;
   let setOutputMock: jest.SpyInstance;
   let setFailedMock: jest.SpyInstance;
   let buildServiceMock: jest.Mocked<BuildService>;
@@ -17,19 +18,18 @@ describe('run', () => {
 
   beforeEach(() => {
     getInputMock = jest.spyOn(core, 'getInput');
+    getBooleanInputMock = jest.spyOn(core, 'getBooleanInput');
     setOutputMock = jest.spyOn(core, 'setOutput');
     setFailedMock = jest.spyOn(core, 'setFailed');
-    buildServiceMock = new BuildService('token', 'subscriptionCode') as jest.Mocked<BuildService>;
-    notifierMock = new Notifier('webhookUrl') as jest.Mocked<Notifier>;
-    (BuildService as jest.Mock).mockReturnValue(buildServiceMock);
-    (Notifier as jest.Mock).mockReturnValue(notifierMock);
+    buildServiceMock = new BuildService('test-token', 'test-subscription') as jest.Mocked<BuildService>;
+    notifierMock = new Notifier('') as jest.Mocked<Notifier>;
   });
 
   afterEach(() => {
     jest.resetAllMocks();
   });
 
-  it('should trigger the build and set outputs correctly', async () => {
+  it('should trigger the build and set outputs', async () => {
     getInputMock.mockImplementation((name: string) => {
       const inputs: { [key: string]: string } = {
         token: 'test-token',
@@ -40,7 +40,15 @@ describe('run', () => {
         retryOnFailure: 'false',
         maxRetries: '3',
         notify: 'false',
-        webhookUrl: ''
+        destination: ''
+      };
+      return inputs[name];
+    });
+
+    getBooleanInputMock.mockImplementation((name: string) => {
+      const inputs: { [key: string]: boolean } = {
+        retryOnFailure: false,
+        notify: false
       };
       return inputs[name];
     });
@@ -89,7 +97,15 @@ describe('run', () => {
         retryOnFailure: 'false',
         maxRetries: '3',
         notify: 'false',
-        webhookUrl: ''
+        destination: ''
+      };
+      return inputs[name];
+    });
+
+    getBooleanInputMock.mockImplementation((name: string) => {
+      const inputs: { [key: string]: boolean } = {
+        retryOnFailure: false,
+        notify: false
       };
       return inputs[name];
     });

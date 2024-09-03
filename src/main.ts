@@ -3,6 +3,7 @@ import { BuildRequest, BuildResponse, BuildStatus, ActionInput, NotificationType
 import { BuildService } from '@sap-cx-actions/commerce-services';
 import { Notifier } from '@sap-cx-actions/notifier';
 import { getBuildName } from './utils';
+import dayjs from 'dayjs';
 
 export async function run(): Promise<void> {
   let buildCode: string | undefined;
@@ -32,29 +33,43 @@ export async function run(): Promise<void> {
       name: input.buildName
     };
 
-    try {
-      const buildResponse: BuildResponse = await buildService.createBuild(buildRequest);
-      core.debug(`Create Build Response: ${JSON.stringify(buildResponse, null, 2)}`);
-      buildCode = buildResponse.code;
+    const buildResponse: BuildResponse = await buildService.createBuild(buildRequest);
+    core.debug(`Create Build Response: ${JSON.stringify(buildResponse, null, 2)}`);
+    buildCode = buildResponse.code;
 
-      // Get the build details
-      if (buildCode) {
-        const getBuild: BuildResponse = await buildService.getBuild(buildCode);
-        core.debug(`Get Build Response: ${JSON.stringify(getBuild, null, 2)}`);
-        buildStatus = getBuild.status;
+    // Get the build details
+    if (buildCode) {
+      const getBuild: BuildResponse = await buildService.getBuild(buildCode);
+      core.debug(`Get Build Response: ${JSON.stringify(getBuild, null, 2)}`);
+      buildStatus = getBuild.status;
 
-        if (input.notify && input.destination) {
-          core.debug('Sending notification...');
-          await notifier.notify(NotificationType.BUILD_STARTED, getBuild);
-        }
+      if (input.notify && input.destination) {
+        core.debug('Sending notification...');
+        await notifier.notify(NotificationType.BUILD_STARTED, getBuild);
       }
 
-      core.setOutput('buildCode', buildCode);
-      core.setOutput('buildStatus', buildStatus);
-    } catch (error) {
-      core.setFailed(`Error during build process: ${(error as Error).message}`);
-      return;
+      await core.summary
+        .addHeading('SAP Commerce Cloud - Build Summary')
+        .addTable([
+          [
+            { data: 'Build Code', header: true },
+            { data: 'Build Name', header: true },
+            { data: 'Branch/Tag', header: true },
+            { data: 'Build Started', header: true }
+          ],
+          [
+            getBuild.code,
+            getBuild.name,
+            getBuild.branch,
+            `${dayjs(buildResponse.buildStartTimestamp).format('MMMM DD, YYYY hh:mm:ss A')}`
+          ]
+        ])
+        .addLink('View in Cloud Portal', 'https://portal.commerce.ondemand.com')
+        .write();
     }
+
+    core.setOutput('buildCode', buildCode);
+    core.setOutput('buildStatus', buildStatus);
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
   }
