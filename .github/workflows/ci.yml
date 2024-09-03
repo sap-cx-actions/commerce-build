@@ -35,7 +35,7 @@ jobs:
           retryOnFailure: true
           maxRetries: 5
           notify: true
-          webhookUrl: ${{ secrets.WEBHOOK_URL }}
+          destination: ${{ secrets.WEBHOOK_URL }}
 
       - name: Print Output
         id: output

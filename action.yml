@@ -30,7 +30,7 @@ inputs:
         required: false
 
     retryOnFailure:
-        description: 'Whether to retry the build if it fails.'
+        description: 'Whether to retry the build creation if it fails.'
         default: 'false'
         required: false
 
@@ -44,8 +44,8 @@ inputs:
         default: 'false'
         required: false
 
-    webhookUrl:
-        description: 'The URL to send notifications to.'
+    destination:
+        description: 'The URL or the email addresses (comma separated) to send notifications.'
         required: false
 
 outputs:

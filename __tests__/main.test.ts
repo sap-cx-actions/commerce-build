@@ -2,22 +2,27 @@ import * as core from '@actions/core';
 import { run } from '../src/main';
 import { BuildService } from '@sap-cx-actions/commerce-services';
 import { BuildRequest, BuildResponse, BuildStatus } from '@sap-cx-actions/models';
+import { Notifier } from '@sap-cx-actions/notifier';
 
 jest.mock('@actions/core');
 jest.mock('@sap-cx-actions/commerce-services');
+jest.mock('@sap-cx-actions/notifier');
 
 describe('run', () => {
   let getInputMock: jest.SpyInstance;
   let setOutputMock: jest.SpyInstance;
   let setFailedMock: jest.SpyInstance;
   let buildServiceMock: jest.Mocked<BuildService>;
+  let notifierMock: jest.Mocked<Notifier>;
 
   beforeEach(() => {
     getInputMock = jest.spyOn(core, 'getInput');
     setOutputMock = jest.spyOn(core, 'setOutput');
     setFailedMock = jest.spyOn(core, 'setFailed');
     buildServiceMock = new BuildService('token', 'subscriptionCode') as jest.Mocked<BuildService>;
+    notifierMock = new Notifier('webhookUrl') as jest.Mocked<Notifier>;
     (BuildService as jest.Mock).mockReturnValue(buildServiceMock);
+    (Notifier as jest.Mock).mockReturnValue(notifierMock);
   });
 
   afterEach(() => {
