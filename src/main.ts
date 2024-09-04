@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { BuildRequest, BuildResponse, BuildStatus, ActionInput, NotificationType } from '@sap-cx-actions/models';
+import { BuildRequest, BuildResponse, BuildStatus, NotificationType, BuildInput } from '@sap-cx-actions/models';
 import { BuildService } from '@sap-cx-actions/commerce-services';
 import { Notifier } from '@sap-cx-actions/notifier';
 import { getBuildName } from './utils';
@@ -11,7 +11,7 @@ export async function run(): Promise<void> {
 
   try {
     core.info('Triggering the CCv2 Cloud build');
-    const input: ActionInput = {
+    const input: BuildInput = {
       token: core.getInput('token'),
       subscriptionCode: core.getInput('subscriptionCode'),
       branch: core.getInput('branch'),
