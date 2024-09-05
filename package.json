@@ -1,6 +1,6 @@
 {
   "name": "sap-commerce-build",
-  "version": "1.0.9",
+  "version": "1.0.11",
   "description": "GitHub Action to trigger the Build in SAP Commerce Cloud in Public Cloud (CCv2)",
   "author": "sap-cx-actions",
   "private": false,
@@ -54,7 +54,7 @@
     "@actions/core": "^1.10.1",
     "@sap-cx-actions/commerce-services": "^0.0.5",
     "@sap-cx-actions/models": "^0.0.15",
-    "@sap-cx-actions/notifier": "^0.0.7",
+    "@sap-cx-actions/notifier": "^0.0.8",
     "dayjs": "^1.11.13"
   }
 }
