@@ -50,7 +50,7 @@ export async function run(): Promise<void> {
       await core.summary
         .addHeading('SAP Commerce Cloud - Build Summary :package:')
         .addRaw(
-          `A CCv2 Cloud build is triggered automatically for the branch/tag *${getBuild.branch} (${getBuild.name})*.`
+          `An SAP Commerce Cloud in the Public Cloud (CCv2) build is triggered automatically for the branch/tag ${getBuild.branch} (${getBuild.name}).`
         )
         .addTable([
           [
