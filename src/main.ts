@@ -44,7 +44,7 @@ export async function run(): Promise<void> {
       buildStatus = getBuild.status;
 
       if (input.notify && input.destination) {
-        await notifier.notify(NotificationType.BUILD_BUILDING, getBuild);
+        await notifier.notify(NotificationType.BUILD_TRIGGERED, getBuild);
       }
 
       await core.summary
