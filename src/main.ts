@@ -44,12 +44,14 @@ export async function run(): Promise<void> {
       buildStatus = getBuild.status;
 
       if (input.notify && input.destination) {
-        core.debug('Sending notification...');
-        await notifier.notify(NotificationType.BUILD_STARTED, getBuild);
+        await notifier.notify(NotificationType.BUILD_BUILDING, getBuild);
       }
 
       await core.summary
         .addHeading('SAP Commerce Cloud - Build Summary :package:')
+        .addRaw(
+          `A CCv2 Cloud build is triggered automatically for the branch/tag *${getBuild.branch} (${getBuild.name})*.`
+        )
         .addTable([
           [
             { data: 'Build Code', header: true },
