@@ -1,5 +1,12 @@
 import * as core from '@actions/core';
-import { BuildRequest, BuildResponse, BuildStatus, NotificationType, BuildInput } from '@sap-cx-actions/models';
+import {
+  BuildRequest,
+  BuildResponse,
+  BuildStatus,
+  NotificationType,
+  BuildInput,
+  BuildProgress
+} from '@sap-cx-actions/models';
 import { BuildService } from '@sap-cx-actions/commerce-services';
 import { Notifier } from '@sap-cx-actions/notifier';
 import { getBuildName } from './utils';
@@ -47,11 +54,12 @@ export async function run(): Promise<void> {
         await notifier.notify(NotificationType.BUILD_TRIGGERED, getBuild);
       }
 
+      // Get the build progress for every checkStatusInterval milliseconds and check the status is not FAIL or SUCCESS, if so exit the loop else continue checking
+      const buildProgress: BuildProgress = await buildService.getBuildProgress(buildCode);
+      core.debug(`Build Progress: ${JSON.stringify(buildProgress, null, 2)}`);
+
       await core.summary
         .addHeading('SAP Commerce Cloud - Build Summary :package:')
-        .addRaw(
-          `An SAP Commerce Cloud in the Public Cloud (CCv2) build is triggered automatically for the branch/tag ${getBuild.branch} (${getBuild.name}).`
-        )
         .addTable([
           [
             { data: 'Build Code', header: true },
@@ -66,7 +74,10 @@ export async function run(): Promise<void> {
             `${dayjs(buildResponse.buildStartTimestamp).format('MMMM DD, YYYY hh:mm:ss A')}`
           ]
         ])
-        .addLink('View in Cloud Portal', 'https://portal.commerce.ondemand.com')
+        .addLink(
+          'View in Cloud Portal',
+          `https://portal.commerce.ondemand.com/subscription/${buildResponse.subscriptionCode}/applications/commerce-cloud/builds/${buildResponse.code}`
+        )
         .write();
     }
 
