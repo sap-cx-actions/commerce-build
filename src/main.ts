@@ -31,7 +31,8 @@ export async function run(): Promise<void> {
     };
 
     const buildService = new BuildService(input.token, input.subscriptionCode);
-    const notifier = new Notifier(input.destination);
+    const shouldNotify = (): boolean => input.notify && input.destination !== '';
+    const notifier = shouldNotify() ? new Notifier(input.destination) : null;
 
     // Create a new build
     const buildRequest: BuildRequest = {
@@ -40,23 +41,70 @@ export async function run(): Promise<void> {
       name: input.buildName
     };
 
-    const buildResponse: BuildResponse = await buildService.createBuild(buildRequest);
-    core.debug(`Create Build Response: ${JSON.stringify(buildResponse, null, 2)}`);
+    let buildResponse: BuildResponse;
+
+    // Trigger the build for the first time
+    buildResponse = await buildService.createBuild(buildRequest);
+    core.debug(`Create Build Response: ${JSON.stringify(buildResponse)}`);
     buildCode = buildResponse.code;
 
     // Get the build details
     if (buildCode) {
+      let buildProgress: BuildProgress;
+      let retries = 0;
+
       const getBuild: BuildResponse = await buildService.getBuild(buildCode);
-      core.debug(`Get Build Response: ${JSON.stringify(getBuild, null, 2)}`);
+      core.debug(`Get Build Response: ${JSON.stringify(getBuild)}`);
       buildStatus = getBuild.status;
 
-      if (input.notify && input.destination) {
+      if (notifier) {
         await notifier.notify(NotificationType.BUILD_TRIGGERED, getBuild);
       }
 
-      // Get the build progress for every checkStatusInterval milliseconds and check the status is not FAIL or SUCCESS, if so exit the loop else continue checking
-      const buildProgress: BuildProgress = await buildService.getBuildProgress(buildCode);
-      core.debug(`Build Progress: ${JSON.stringify(buildProgress, null, 2)}`);
+      do {
+        buildProgress = await buildService.getBuildProgress(buildCode);
+        core.debug(`Build Progress: ${JSON.stringify(buildProgress)}`);
+
+        if (
+          buildProgress.buildStatus === BuildStatus.BUILDING &&
+          buildProgress.percentage !== undefined &&
+          buildProgress.percentage !== null &&
+          buildProgress.percentage < 100
+        ) {
+          buildStatus = BuildStatus.BUILDING;
+          console.log(
+            `Build is in progress. ${buildProgress.percentage}% completed, waiting for ${input.checkStatusInterval}ms`
+          );
+          await new Promise(resolve => setTimeout(resolve, input.checkStatusInterval));
+        } else if (buildProgress.buildStatus === BuildStatus.FAIL) {
+          if (input.retryOnFailure && retries < input.maxRetries) {
+            core.info(`Build failed. Retrying... (${retries + 1}/${input.maxRetries})`);
+            buildResponse = await buildService.createBuild(buildRequest);
+            core.debug(
+              `Create Build Response of retries (${retries + 1}/${input.maxRetries}): ${JSON.stringify(buildResponse)}`
+            );
+            buildCode = buildResponse.code;
+            retries++;
+          } else {
+            buildStatus = BuildStatus.FAIL;
+            core.setFailed(`Build failed${input.retryOnFailure ? ` after ${retries} retries` : ''}`);
+            if (notifier) {
+              await notifier.notify(NotificationType.BUILD_FAIL, buildProgress);
+            }
+            break;
+          }
+        } else if (buildProgress.buildStatus === BuildStatus.SUCCESS && buildProgress.percentage === 100) {
+          buildStatus = BuildStatus.SUCCESS;
+          core.info('Build completed successfully');
+          if (notifier) {
+            await notifier.notify(NotificationType.BUILD_SUCCESS, buildProgress);
+          }
+          break;
+        }
+      } while (
+        buildProgress.buildStatus === BuildStatus.BUILDING ||
+        (buildProgress.buildStatus === BuildStatus.FAIL && input.retryOnFailure)
+      );
 
       await core.summary
         .addHeading('SAP Commerce Cloud - Build Summary :package:')
@@ -65,13 +113,15 @@ export async function run(): Promise<void> {
             { data: 'Build Code', header: true },
             { data: 'Build Name', header: true },
             { data: 'Branch/Tag', header: true },
-            { data: 'Build Started', header: true }
+            { data: 'Build Started', header: true },
+            { data: 'Build Status', header: true }
           ],
           [
-            getBuild.code,
+            buildProgress.buildCode,
             getBuild.name,
             getBuild.branch,
-            `${dayjs(buildResponse.buildStartTimestamp).format('MMMM DD, YYYY hh:mm:ss A')}`
+            `${dayjs(buildResponse.buildStartTimestamp).format('MMMM DD, YYYY hh:mm:ss A')}`,
+            buildProgress.buildStatus
           ]
         ])
         .addLink(
@@ -79,6 +129,8 @@ export async function run(): Promise<void> {
           `https://portal.commerce.ondemand.com/subscription/${buildResponse.subscriptionCode}/applications/commerce-cloud/builds/${buildResponse.code}`
         )
         .write();
+    } else {
+      core.setFailed('Failed to trigger the build');
     }
 
     core.setOutput('buildCode', buildCode);

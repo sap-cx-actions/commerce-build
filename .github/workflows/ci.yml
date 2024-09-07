@@ -33,7 +33,7 @@ jobs:
           buildName: Release v1.0.0
           checkStatusInterval: 60000
           retryOnFailure: true
-          maxRetries: 5
+          maxRetries: 3
           notify: true
           destination: ${{ secrets.WEBHOOK_URL }}
 
