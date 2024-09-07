@@ -15,6 +15,9 @@ import dayjs from 'dayjs';
 export async function run(): Promise<void> {
   let buildCode: string | undefined;
   let buildStatus: BuildStatus | undefined;
+  let buildResponse: BuildResponse;
+  let buildProgress: BuildProgress;
+  let retries = 0;
 
   try {
     core.info('Triggering the CCv2 Cloud build');
@@ -41,8 +44,6 @@ export async function run(): Promise<void> {
       name: input.buildName
     };
 
-    let buildResponse: BuildResponse;
-
     // Trigger the build for the first time
     buildResponse = await buildService.createBuild(buildRequest);
     core.debug(`Create Build Response: ${JSON.stringify(buildResponse)}`);
@@ -50,15 +51,12 @@ export async function run(): Promise<void> {
 
     // Get the build details
     if (buildCode) {
-      let buildProgress: BuildProgress;
-      let retries = 0;
-
-      const getBuild: BuildResponse = await buildService.getBuild(buildCode);
-      core.debug(`Get Build Response: ${JSON.stringify(getBuild)}`);
-      buildStatus = getBuild.status;
+      buildResponse = await buildService.getBuild(buildCode);
+      core.debug(`Get Build Response: ${JSON.stringify(buildResponse)}`);
+      buildStatus = buildResponse.status;
 
       if (notifier) {
-        await notifier.notify(NotificationType.BUILD_TRIGGERED, getBuild);
+        await notifier.notify(NotificationType.BUILD_TRIGGERED, buildResponse);
       }
 
       do {
@@ -84,12 +82,13 @@ export async function run(): Promise<void> {
               `Create Build Response of retries (${retries + 1}/${input.maxRetries}): ${JSON.stringify(buildResponse)}`
             );
             buildCode = buildResponse.code;
+            buildResponse = await buildService.getBuild(buildCode);
             retries++;
           } else {
             buildStatus = BuildStatus.FAIL;
             core.setFailed(`Build failed${input.retryOnFailure ? ` after ${retries} retries` : ''}`);
             if (notifier) {
-              await notifier.notify(NotificationType.BUILD_FAIL, buildProgress);
+              await notifier.notify(NotificationType.BUILD_FAIL, buildResponse);
             }
             break;
           }
@@ -97,7 +96,7 @@ export async function run(): Promise<void> {
           buildStatus = BuildStatus.SUCCESS;
           core.info('Build completed successfully');
           if (notifier) {
-            await notifier.notify(NotificationType.BUILD_SUCCESS, buildProgress);
+            await notifier.notify(NotificationType.BUILD_SUCCESS, buildResponse);
           }
           break;
         }
@@ -118,8 +117,8 @@ export async function run(): Promise<void> {
           ],
           [
             buildProgress.buildCode,
-            getBuild.name,
-            getBuild.branch,
+            buildResponse.name,
+            buildResponse.branch,
             `${dayjs(buildResponse.buildStartTimestamp).format('MMMM DD, YYYY hh:mm:ss A')}`,
             buildProgress.buildStatus
           ]
