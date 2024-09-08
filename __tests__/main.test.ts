@@ -1,14 +1,14 @@
 import { run } from '../src/main';
 import { BuildService } from '@sap-cx-actions/commerce-services';
 import { Notifier } from '@sap-cx-actions/notifier';
-import { BuildRequest, BuildResponse, BuildStatus } from '@sap-cx-actions/models';
+import { BuildRequest, BuildResponse, BuildStatus, NotificationType } from '@sap-cx-actions/models';
 import * as core from '@actions/core';
 
 jest.mock('@sap-cx-actions/commerce-services');
 jest.mock('@sap-cx-actions/notifier');
 jest.mock('@actions/core');
 
-describe('main', () => {
+describe('run', () => {
   let getInputMock: jest.SpyInstance;
   let getBooleanInputMock: jest.SpyInstance;
   let setOutputMock: jest.SpyInstance;
@@ -73,6 +73,15 @@ describe('main', () => {
 
     buildServiceMock.createBuild.mockResolvedValue(buildResponse);
     buildServiceMock.getBuild.mockResolvedValue(buildResponse);
+    buildServiceMock.getBuildProgress.mockResolvedValue({
+      buildCode: 'build-code',
+      buildStatus: BuildStatus.SUCCESS,
+      percentage: 100,
+      subscriptionCode: 'test-subscription',
+      errorMessage: null,
+      numberOfTasks: 0,
+      startedTasks: []
+    });
 
     await run();
 
@@ -83,7 +92,79 @@ describe('main', () => {
     } as BuildRequest);
     expect(buildServiceMock.getBuild).toHaveBeenCalledWith('build-code');
     expect(setOutputMock).toHaveBeenCalledWith('buildCode', 'build-code');
-    expect(setOutputMock).toHaveBeenCalledWith('buildStatus', BuildStatus.BUILDING);
+    expect(setOutputMock).toHaveBeenCalledWith('buildStatus', BuildStatus.SUCCESS);
+  });
+
+  it('should handle build failure and retry', async () => {
+    getInputMock.mockImplementation((name: string) => {
+      const inputs: { [key: string]: string } = {
+        token: 'test-token',
+        subscriptionCode: 'test-subscription',
+        branch: 'main',
+        buildName: 'test-build',
+        checkStatusInterval: '10',
+        retryOnFailure: 'true',
+        maxRetries: '3',
+        notify: 'false',
+        destination: ''
+      };
+      return inputs[name];
+    });
+
+    getBooleanInputMock.mockImplementation((name: string) => {
+      const inputs: { [key: string]: boolean } = {
+        retryOnFailure: true,
+        notify: false
+      };
+      return inputs[name];
+    });
+
+    const buildResponse: BuildResponse = {
+      applicationCode: 'commerce-cloud',
+      applicationDefinitionVersion: '1.0.0',
+      branch: 'main',
+      buildEndTimestamp: new Date(),
+      buildStartTimestamp: new Date(),
+      buildVersion: '1.0.0',
+      code: 'build-code',
+      createdBy: 'user',
+      deployed: false,
+      hasSnapshot: false,
+      isPreview: false,
+      name: 'test-build',
+      properties: [],
+      status: BuildStatus.BUILDING,
+      subscriptionCode: 'test-subscription'
+    };
+
+    buildServiceMock.createBuild.mockResolvedValue(buildResponse);
+    buildServiceMock.getBuild.mockResolvedValue(buildResponse);
+    buildServiceMock.getBuildProgress
+      .mockResolvedValueOnce({
+        buildCode: 'build-code',
+        buildStatus: BuildStatus.FAIL,
+        percentage: 50,
+        subscriptionCode: 'test-subscription',
+        errorMessage: 'Build failed',
+        numberOfTasks: 0,
+        startedTasks: []
+      })
+      .mockResolvedValueOnce({
+        buildCode: 'build-code',
+        buildStatus: BuildStatus.SUCCESS,
+        percentage: 100,
+        subscriptionCode: 'test-subscription',
+        errorMessage: 'Build failed',
+        numberOfTasks: 0,
+        startedTasks: []
+      });
+
+    await run();
+
+    expect(buildServiceMock.createBuild).toHaveBeenCalledTimes(2);
+    expect(buildServiceMock.getBuild).toHaveBeenCalledWith('build-code');
+    expect(setOutputMock).toHaveBeenCalledWith('buildCode', 'build-code');
+    expect(setOutputMock).toHaveBeenCalledWith('buildStatus', BuildStatus.SUCCESS);
   });
 
   it('should handle errors during build process', async () => {
@@ -115,6 +196,6 @@ describe('main', () => {
 
     await run();
 
-    expect(setFailedMock).toHaveBeenCalledWith('Error during build process: Build failed');
+    expect(setFailedMock).toHaveBeenCalledWith('Build failed');
   });
 });
