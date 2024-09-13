@@ -8,24 +8,24 @@ Public Cloud (CCv2) projects.
 ### 🚀 Completed Items
 
 - [x] **Trigger Build**: Trigger SAP Commerce Cloud build.
+- [x] **Build Notification**: Sends a notification when a build is triggered in CCv2.
+- [x] **Build Status Notification**: Frequently check the build status and send notifications when success or failure.
+- [x] **Retry On Failure**: Retry the build creation if it fails for the maxRetries times.
+- [x] **Notifications**: Notify the user via email or webhook when the build is triggered or completed.
+  - [x] Create Build: Triggered with build is created in CCv2.
+  - [x] Build Completed: Triggered when the build is completed in CCv2 whether it is success or failure.
+  - [x] Slack: Send notifications to Slack.
+  - [x] Microsoft Teams: Send notifications to Microsoft Teams.
 
 ### 🔧 Planned Items
 
-- [ ] **Build Notification**: Sends a notification when a build is triggered in CCv2.
-- [ ] **Build Status Notification**: Frequently check the build status and send notifications when success or failure.
-- [ ] **Retry On Failure**: Retry the build creation if it fails for the maxRetries times.
 - [ ] **Testing**: Improve test coverage with end-to-end tests.
 - [ ] **Notifications**: Notify the user via email or webhook when the build is triggered or completed.
-  - [ ] Create Build: Triggered with build is created in CCv2.
-  - [ ] Build Progress: Check the build status and send notifications. (Is it required?)
-  - [ ] Build Completed: Triggered when the build is completed in CCv2 whether it is success or failure.
-  - [ ] Slack: Send notifications to Slack.
   - [ ] Email: Send notifications to email.
     - [ ] SendGrid: Send notifications using SendGrid.
     - [ ] AWS SES: Send notifications using AWS SES.
     - [ ] Custom SMTP: Send notifications using custom SMTP.
     - [ ] Similar SMTP services.
-  - [ ] Microsoft Teams: Send notifications to Microsoft Teams.
 
 ## Getting Started
 
@@ -35,7 +35,7 @@ See [action.yml](action.yml)
 
 - GitHub repository with SAP Commerce Cloud in the Public Cloud (CCv2) project.
 - SAP Commerce Cloud in the Public Cloud (CCv2) project with the required configurations.
-- Webhook URL or email address(es) to send notifications.
+- Webhook URL (Slack or Microsoft Teams) or email address(es) to send notifications.
 - GitHub Actions enabled in the repository.
 - GitHub token with the required permissions.
 - SAP Commerce Cloud in the Public Cloud (CCv2) API Token.
