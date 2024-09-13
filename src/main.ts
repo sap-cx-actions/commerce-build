@@ -119,7 +119,7 @@ export async function run(): Promise<void> {
             buildProgress.buildCode,
             buildResponse.name,
             buildResponse.branch,
-            `${dayjs(buildResponse.buildStartTimestamp).format('MMMM DD, YYYY hh:mm:ss A')}`,
+            `${dayjs(buildResponse.buildStartTimestamp).format('MMMM DD, YYYY hh:mm:ss A Z')}`,
             buildProgress.buildStatus
           ]
         ])
