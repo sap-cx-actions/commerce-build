@@ -81,16 +81,17 @@ jobs:
 
 ### Inputs
 
-- `token` - **Required**. SAP Commerce Cloud in the Public Cloud (CCv2) API Token.
-- `subscriptionCode` - **Required**. SAP Commerce Cloud in the Public Cloud (CCv2) Subscription Code.
-- `branch` - **Required**. The branch name or tag to trigger the build.
-- `buildName` - **Optional**. The name of the build.
-- `checkStatusInterval` - **Optional**. The interval in milliseconds to check the build status. Default is 300000 (5
-  minutes).
-- `retryOnFailure` - **Optional**. Retry the build if failed. Default is false.
-- `maxRetries` - **Optional**. The maximum number of retries. Default is 3.
-- `notify` - **Optional**. Send notifications on the build status. Default is false.
-- `destination` - **Optional**. The URL or the email addresses (comma separated) to send notifications. Default is ''.
+| Attribute           | Purpose                                                                                                                                                                                                   | Required | Default              | Example |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------- | ------- |
+| token               | SAP Commerce Cloud in the Public Cloud (CCv2) [API Token](https://help.sap.com/docs/SAP_COMMERCE_CLOUD_PUBLIC_CLOUD/0fa6bcf4736c46f78c248512391eb467/65e64c9602534b8aaf25bb119670614f.html?locale=en-US). | True     |                      |         |
+| subscriptionCode    | SAP Commerce Cloud in the Public Cloud (CCv2) Subscription Code.                                                                                                                                          | True     |                      |         |
+| branch              | The branch name or tag to trigger the build.                                                                                                                                                              | True     | `release/v1.0.0`     |         |
+| buildName           | The name of the build.                                                                                                                                                                                    | False    |                      |         |
+| checkStatusInterval | The interval in milliseconds to check the build status.                                                                                                                                                   | False    | `300000` (5 minutes) |         |
+| retryOnFailure      | Retry the build if failed.                                                                                                                                                                                | False    | `false`              |         |
+| maxRetries          | The maximum number of retries.                                                                                                                                                                            | False    | `3`                  |         |
+| notify              | Send notifications on the build status.                                                                                                                                                                   | False    | `false`              |         |
+| destination         | The URL or the email addresses (comma separated) to send notifications.                                                                                                                                   | False    |                      |         |
 
 ### Outputs
 
