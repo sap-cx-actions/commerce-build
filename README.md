@@ -69,8 +69,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Test Local Action
-        id: test-action
-        uses: ./
+        id: build-action
+        uses: sap-cx-actions/commerce-build@v1
         with:
           branch: release/v1.0.0
           buildName: Release v1.0.0
@@ -82,7 +82,7 @@ jobs:
       - name: Print Output
         id: output
         run: |
-          echo "Build Code: ${{ steps.test-action.outputs.buildCode }}, Build Status: ${{ steps.test-action.outputs.buildStatus }}"
+          echo "Build Code: ${{ steps.build-action.outputs.buildCode }}, Build Status: ${{ steps.build-action.outputs.buildStatus }}"
 ```
 
 ### Environment Variables
