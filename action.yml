@@ -8,14 +8,6 @@ branding:
   color: 'blue'
 
 inputs:
-    token:
-        description: 'Your CCv2 API token.'
-        required: true
-
-    subscriptionCode:
-        description: 'The Subscription Code of the CCv2 environment.'
-        required: true
-
     branch:
         description: 'The branch or tag to build.'
         required: true
@@ -40,12 +32,8 @@ inputs:
         required: false
 
     notify:
-        description: 'Whether to send notifications, if true, the webhookUrl is required.'
+        description: 'Whether to send notifications, if true, the webhookUrl environment variables is required.'
         default: 'false'
-        required: false
-
-    destination:
-        description: 'The URL or the email addresses (comma separated) to send notifications.'
         required: false
 
 outputs:

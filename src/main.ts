@@ -22,20 +22,31 @@ export async function run(): Promise<void> {
   try {
     core.info('Triggering the CCv2 Cloud build');
     const input: BuildInput = {
-      token: core.getInput('token'),
-      subscriptionCode: core.getInput('subscriptionCode'),
+      token: process.env.SAP_CCV2_API_TOKEN || '',
+      subscriptionCode: process.env.SAP_CCV2_SUB_CODE || '',
       branch: core.getInput('branch'),
       buildName: await getBuildName(core.getInput('branch'), core.getInput('buildName')),
       checkStatusInterval: parseInt(core.getInput('checkStatusInterval'), 10),
       retryOnFailure: core.getBooleanInput('retryOnFailure'),
       maxRetries: parseInt(core.getInput('maxRetries'), 10),
       notify: core.getBooleanInput('notify'),
-      destination: core.getInput('destination')
+      webhookUrl: process.env.WEBHOOK_URL || ''
     };
 
+    // if token and subscription code are not provided, fail the action
+    if (!input.token) {
+      core.setFailed('Token is required');
+      return;
+    }
+
+    if (!input.subscriptionCode) {
+      core.setFailed('Subscription Code is required');
+      return;
+    }
+
     const buildService = new BuildService(input.token, input.subscriptionCode);
-    const shouldNotify = (): boolean => input.notify && input.destination !== '';
-    const notifier = shouldNotify() ? new Notifier(input.destination) : null;
+    const shouldNotify = (): boolean => input.notify && input.webhookUrl !== '';
+    const notifier = shouldNotify() ? new Notifier(input.webhookUrl) : null;
 
     // Create a new build
     const buildRequest: BuildRequest = {
