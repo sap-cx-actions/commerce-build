@@ -1,15 +1,8 @@
 import * as core from '@actions/core';
-import {
-  BuildRequest,
-  BuildResponse,
-  BuildStatus,
-  NotificationType,
-  BuildInput,
-  BuildProgress
-} from '@sap-cx-actions/models';
+import { BuildRequest, BuildResponse, BuildStatus, NotificationType, BuildProgress } from '@sap-cx-actions/models';
 import { BuildService } from '@sap-cx-actions/commerce-services';
 import { Notifier } from '@sap-cx-actions/notifier';
-import { addSummary, getBuildName } from './utils';
+import { addSummary, getInputs, validateInputs } from './utils';
 
 export async function run(): Promise<void> {
   let buildCode: string | undefined;
@@ -20,30 +13,12 @@ export async function run(): Promise<void> {
 
   try {
     core.info('Triggering the CCv2 Cloud build');
-    const input: BuildInput = {
-      token: process.env.SAP_CCV2_API_TOKEN || '',
-      subscriptionCode: process.env.SAP_CCV2_SUB_CODE || '',
-      branch: core.getInput('branch'),
-      buildName: await getBuildName(core.getInput('branch'), core.getInput('buildName')),
-      checkStatusInterval: parseInt(core.getInput('checkStatusInterval'), 10),
-      retryOnFailure: core.getBooleanInput('retryOnFailure'),
-      maxRetries: parseInt(core.getInput('maxRetries'), 10),
-      notify: core.getBooleanInput('notify'),
-      webhookUrl: process.env.WEBHOOK_URL || ''
-    };
+    const input = getInputs;
 
-    // if token and subscription code are not provided, fail the action
-    if (!input.token) {
-      core.setFailed('Token is required');
-      return;
-    }
+    // Validate required inputs
+    validateInputs({ token: input.token, subscriptionCode: input.subscriptionCode });
 
-    if (!input.subscriptionCode) {
-      core.setFailed('Subscription Code is required');
-      return;
-    }
-
-    const buildService = new BuildService(input.token, input.subscriptionCode);
+    const buildService = new BuildService(input.token, input.subscriptionCode, input.dryRun);
     const shouldNotify = (): boolean => input.notify && input.webhookUrl !== '';
     const notifier = shouldNotify() ? new Notifier(input.webhookUrl) : null;
 

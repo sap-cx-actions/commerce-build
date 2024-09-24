@@ -38,6 +38,7 @@ jobs:
           retryOnFailure: true
           maxRetries: 3
           notify: true
+          dryRun: true
 
       - name: Print Output
         id: output

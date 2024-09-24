@@ -78,6 +78,7 @@ jobs:
           retryOnFailure: true
           maxRetries: 3
           notify: true
+          dryRun: true
 
       - name: Print Output
         id: output
@@ -95,14 +96,15 @@ jobs:
 
 ### Inputs
 
-| Attribute           | Purpose                                                 | Required | Default              | Example |
-| ------------------- | ------------------------------------------------------- | -------- | -------------------- | ------- |
-| branch              | The branch name or tag to trigger the build.            | True     | `release/v1.0.0`     |         |
-| buildName           | The name of the build.                                  | False    |                      |         |
-| checkStatusInterval | The interval in milliseconds to check the build status. | False    | `300000` (5 minutes) |         |
-| retryOnFailure      | Retry the build if failed.                              | False    | `false`              |         |
-| maxRetries          | The maximum number of retries.                          | False    | `3`                  |         |
-| notify              | Send notifications on the build status.                 | False    | `false`              |         |
+| Attribute           | Purpose                                                                                        | Required | Default              | Example          |
+| ------------------- | ---------------------------------------------------------------------------------------------- | -------- | -------------------- | ---------------- |
+| branch              | The branch name or tag to trigger the build.                                                   | True     |                      | `release/v1.0.0` |
+| buildName           | The name of the build.                                                                         | False    |                      |                  |
+| checkStatusInterval | The interval in milliseconds to check the build status.                                        | False    | `300000` (5 minutes) |                  |
+| retryOnFailure      | Retry the build if failed.                                                                     | False    | `false`              |                  |
+| maxRetries          | The maximum number of retries.                                                                 | False    | `3`                  |                  |
+| notify              | Send notifications on the build status.                                                        | False    | `false`              |                  |
+| dryRun              | Run the action in dry-run mode. If true, the action will not trigger the build in actual CCv2. | False    | `false`              |                  |
 
 ### Outputs
 
