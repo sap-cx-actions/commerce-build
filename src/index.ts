@@ -54,14 +54,20 @@ export async function run(): Promise<void> {
         } else if (
           buildProgress.buildStatus === BuildStatus.BUILDING &&
           buildProgress.percentage !== undefined &&
-          buildProgress.percentage !== null &&
-          buildProgress.percentage < 100
+          buildProgress.percentage !== null
         ) {
-          buildStatus = BuildStatus.BUILDING;
-          core.info(
-            `Build is in progress. ${buildProgress.percentage}% completed, waiting for ${input.checkStatusInterval}ms`
-          );
-          await new Promise(resolve => setTimeout(resolve, input.checkStatusInterval));
+          if (buildProgress.percentage < 100) {
+            buildStatus = BuildStatus.BUILDING;
+            core.info(
+              `Build is in progress. ${buildProgress.percentage}% completed, waiting for ${input.checkStatusInterval}ms.`
+            );
+            await new Promise(resolve => setTimeout(resolve, input.checkStatusInterval));
+          } else {
+            core.info(
+              `Build percentage is 100% but status is still BUILDING. Waiting for ${input.checkStatusInterval}ms.`
+            );
+            await new Promise(resolve => setTimeout(resolve, input.checkStatusInterval));
+          }
         } else if (buildProgress.buildStatus === BuildStatus.FAIL) {
           if (input.retryOnFailure && retries < input.maxRetries) {
             core.info(`Build failed. Retrying... (${retries + 1}/${input.maxRetries})`);
@@ -81,7 +87,8 @@ export async function run(): Promise<void> {
             break;
           }
         } else if (buildProgress.buildStatus === BuildStatus.SUCCESS && buildProgress.percentage === 100) {
-          buildStatus = BuildStatus.SUCCESS;
+          buildResponse = await buildService.getBuild(buildCode);
+          buildStatus = buildResponse.status;
           core.info('Build completed successfully');
           if (notifier) {
             await notifier.notify(NotificationType.BUILD_SUCCESS, buildResponse);
