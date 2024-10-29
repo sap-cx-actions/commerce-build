@@ -48,14 +48,17 @@ export async function run(): Promise<void> {
         buildProgress = await buildService.getBuildProgress(buildCode);
         core.debug(`Build Progress: ${JSON.stringify(buildProgress)}`);
 
-        if (
+        if (buildProgress.buildStatus === BuildStatus.UNKNOWN) {
+          core.info(`Build status is UNKNOWN. Waiting for ${input.checkStatusInterval}ms before checking again.`);
+          await new Promise(resolve => setTimeout(resolve, input.checkStatusInterval));
+        } else if (
           buildProgress.buildStatus === BuildStatus.BUILDING &&
           buildProgress.percentage !== undefined &&
           buildProgress.percentage !== null &&
           buildProgress.percentage < 100
         ) {
           buildStatus = BuildStatus.BUILDING;
-          console.log(
+          core.info(
             `Build is in progress. ${buildProgress.percentage}% completed, waiting for ${input.checkStatusInterval}ms`
           );
           await new Promise(resolve => setTimeout(resolve, input.checkStatusInterval));
@@ -87,6 +90,7 @@ export async function run(): Promise<void> {
         }
       } while (
         buildProgress.buildStatus === BuildStatus.BUILDING ||
+        buildProgress.buildStatus === BuildStatus.UNKNOWN ||
         (buildProgress.buildStatus === BuildStatus.FAIL && input.retryOnFailure)
       );
 
