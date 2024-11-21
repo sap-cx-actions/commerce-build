@@ -40,11 +40,11 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.8.4",
-    "@vercel/ncc": "^0.38.2",
+    "@types/node": "^22.9.1",
+    "@vercel/ncc": "^0.38.3",
     "esbuild": "0.24.0",
     "jest": "^29.7.0",
-    "jest-mock-axios": "^4.7.3",
+    "jest-mock-axios": "^4.8.0",
     "prettier": "3.3.3",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
@@ -52,9 +52,10 @@
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@sap-cx-actions/commerce-services": "^0.0.5",
-    "@sap-cx-actions/models": "^0.0.6",
-    "@sap-cx-actions/notifier": "^0.0.5",
+    "@actions/github": "^6.0.0",
+    "@sap-cx-actions/commerce-services": "^0.0.7",
+    "@sap-cx-actions/models": "^0.0.7",
+    "@sap-cx-actions/notifier": "^0.0.7",
     "dayjs": "^1.11.13"
   }
 }

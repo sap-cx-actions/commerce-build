@@ -79,6 +79,7 @@ jobs:
           maxRetries: 3
           notify: true
           dryRun: true
+          timezone: America/New_York
 
       - name: Print Output
         id: output
@@ -105,6 +106,7 @@ jobs:
 | maxRetries          | The maximum number of retries.                                                                 | False    | `3`                  |                  |
 | notify              | Send notifications on the build status.                                                        | False    | `false`              |                  |
 | dryRun              | Run the action in dry-run mode. If true, the action will not trigger the build in actual CCv2. | False    | `false`              |                  |
+| timezone            | The timezone to use for the timestamps.                                                        | False    | `America/New_York`   |                  |
 
 ### Outputs
 

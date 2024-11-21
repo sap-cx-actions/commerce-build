@@ -1,5 +1,7 @@
-import { BuildInput, BuildProgress, BuildResponse } from '@sap-cx-actions/models';
+import { BuildInput, BuildProgress, BuildResponse, Notification, NotificationType } from '@sap-cx-actions/models';
 import * as core from '@actions/core';
+import * as github from '@actions/github';
+
 import dayjs from 'dayjs';
 import { SAP } from '@sap-cx-actions/commerce-services';
 
@@ -8,6 +10,12 @@ export function getBuildName(branch: string, buildName: string): string {
     return branch.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   }
   return buildName;
+}
+
+export function getWorkflowRunUrl(): string {
+  const { runId, repo } = github.context;
+  const serverUrl = process.env.GITHUB_SERVER_URL || 'https://github.com';
+  return `${serverUrl}/${repo.owner}/${repo.repo}/actions/runs/${runId}`;
 }
 
 export const getInputs: BuildInput = {
@@ -20,7 +28,8 @@ export const getInputs: BuildInput = {
   maxRetries: parseInt(core.getInput('maxRetries'), 10),
   notify: core.getBooleanInput('notify'),
   webhookUrl: process.env.WEBHOOK_URL || '',
-  dryRun: core.getBooleanInput('dryRun')
+  dryRun: core.getBooleanInput('dryRun'),
+  timezone: core.getInput('timezone')
 };
 
 export function validateInputs(inputs: { [key: string]: string }): void {
@@ -37,6 +46,17 @@ export function validateInputs(inputs: { [key: string]: string }): void {
     const errorMessage = `Validation Failed: ${errorMessages.join(', ')}`;
     throw new Error(errorMessage);
   }
+}
+
+export function buildNotification(type: NotificationType, content: any): Notification {
+  return {
+    type: type,
+    content: content,
+    info: {
+      timezone: getInputs.timezone,
+      workflowRunUrl: getWorkflowRunUrl()
+    }
+  };
 }
 
 export async function addSummary(buildResponse: BuildResponse, buildProgress: BuildProgress): Promise<void> {

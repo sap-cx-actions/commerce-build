@@ -41,6 +41,11 @@ inputs:
         default: 'false'
         required: false
 
+    timezone:
+        description: 'The timezone to use for the build. Default is America/New_York.'
+        default: 'America/New_York'
+        required: false
+
 outputs:
   buildCode:
     description: 'The code of the build.'

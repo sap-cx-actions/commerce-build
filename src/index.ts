@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import { BuildRequest, BuildResponse, BuildStatus, NotificationType, BuildProgress } from '@sap-cx-actions/models';
 import { BuildService } from '@sap-cx-actions/commerce-services';
 import { Notifier } from '@sap-cx-actions/notifier';
-import { addSummary, getInputs, validateInputs } from './utils';
+import { addSummary, buildNotification, getInputs, getWorkflowRunUrl, validateInputs } from './utils';
 
 export async function run(): Promise<void> {
   let buildCode: string | undefined;
@@ -41,7 +41,7 @@ export async function run(): Promise<void> {
       buildStatus = buildResponse.status;
 
       if (notifier) {
-        await notifier.notify(NotificationType.BUILD_TRIGGERED, buildResponse);
+        await notifier.notify(buildNotification(NotificationType.BUILD_TRIGGERED, buildResponse));
       }
 
       do {
@@ -82,7 +82,7 @@ export async function run(): Promise<void> {
             buildStatus = BuildStatus.FAIL;
             core.setFailed(`Build failed${input.retryOnFailure ? ` after ${retries} retries` : ''}`);
             if (notifier) {
-              await notifier.notify(NotificationType.BUILD_FAIL, buildResponse);
+              await notifier.notify(buildNotification(NotificationType.BUILD_FAIL, buildResponse));
             }
             break;
           }
@@ -91,7 +91,7 @@ export async function run(): Promise<void> {
           buildStatus = buildResponse.status;
           core.info('Build completed successfully');
           if (notifier) {
-            await notifier.notify(NotificationType.BUILD_SUCCESS, buildResponse);
+            await notifier.notify(buildNotification(NotificationType.BUILD_SUCCESS, buildResponse));
           }
           break;
         }
