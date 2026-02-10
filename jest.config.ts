@@ -85,7 +85,13 @@ const config: Config = {
   // ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
+  moduleNameMapper: {
+    '^@actions/core$': '<rootDir>/node_modules/@actions/core/lib/core.js',
+    '^@actions/github$': '<rootDir>/test-helpers/actions-github.ts',
+    '^@actions/http-client$': '<rootDir>/test-helpers/actions-http-client.ts',
+    '^@actions/http-client/lib/auth$': '<rootDir>/test-helpers/actions-http-client-auth.ts',
+    '^@actions/exec$': '<rootDir>/test-helpers/actions-exec.ts'
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -169,7 +175,12 @@ const config: Config = {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    '^.+\\.ts$': 'ts-jest'
+    '^.+\\.[tj]s$': [
+      'ts-jest',
+      {
+        tsconfig: { isolatedModules: true, allowJs: true }
+      }
+    ]
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
@@ -182,7 +193,10 @@ const config: Config = {
   // unmockedModulePathPatterns: undefined,
 
   // Indicates whether each individual test should be reported during the run
-  verbose: true
+  verbose: true,
+
+  // Transform ESM-only dependencies from @actions/* so Jest can require them.
+  transformIgnorePatterns: ['/node_modules/(?!(?:@actions/core|@actions/github)/)']
 
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],
