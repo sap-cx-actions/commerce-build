@@ -2,6 +2,7 @@ const createBuildMock = jest.fn();
 const getBuildMock = jest.fn();
 const getBuildProgressMock = jest.fn();
 const notifyMock = jest.fn();
+const validateInputsMock = jest.fn();
 
 jest.mock('@sap-cx-actions/models', () => ({
   BuildStatus: {
@@ -29,7 +30,8 @@ jest.mock('@sap-cx-actions/commerce-services', () => ({
     getBuildProgress(...args: unknown[]) {
       return getBuildProgressMock(...args);
     }
-  }
+  },
+  validateInputs: (...args: unknown[]) => validateInputsMock(...args)
 }));
 
 jest.mock('@sap-cx-actions/notifier', () => ({
@@ -45,12 +47,15 @@ const flushPromises = () => new Promise(resolve => setImmediate(resolve));
 
 const setupIndex = async (inputs: Record<string, unknown>, options?: { validateInputsImpl?: () => void }) => {
   jest.resetModules();
-  const validateInputsMock = jest.fn(options?.validateInputsImpl);
+  validateInputsMock.mockReset();
+  if (options?.validateInputsImpl) {
+    validateInputsMock.mockImplementation(options.validateInputsImpl);
+  }
   const buildNotificationMock = jest.fn((type: string, content: unknown) => ({ type, content }));
   const addSummaryMock = jest.fn();
 
   jest.doMock('../src/utils', () => ({
-    getInputs: inputs,
+    getInputs: () => inputs,
     validateInputs: validateInputsMock,
     buildNotification: buildNotificationMock,
     addSummary: addSummaryMock,
@@ -192,6 +197,48 @@ describe('index run', () => {
     expect(setFailedSpy).not.toHaveBeenCalled();
   });
 
+  it('continues when build progress percentage is missing', async () => {
+    createBuildMock.mockResolvedValue({ code: 'C1' });
+    getBuildMock
+      .mockResolvedValueOnce({
+        code: 'C1',
+        status: 'BUILDING',
+        name: 'Build',
+        branch: 'main',
+        subscriptionCode: 'SUB',
+        buildStartTimestamp: '2024-01-01T00:00:00Z'
+      })
+      .mockResolvedValueOnce({
+        code: 'C1',
+        status: 'SUCCESS',
+        name: 'Build',
+        branch: 'main',
+        subscriptionCode: 'SUB',
+        buildStartTimestamp: '2024-01-01T00:00:00Z'
+      });
+    getBuildProgressMock.mockResolvedValueOnce({ buildStatus: 'BUILDING' }).mockResolvedValueOnce({
+      buildStatus: 'SUCCESS',
+      percentage: 100
+    });
+
+    const { setFailedSpy, setOutputSpy } = await setupIndex({
+      token: 'token',
+      subscriptionCode: 'sub',
+      branch: 'main',
+      buildName: 'Build',
+      checkStatusInterval: 1,
+      retryOnFailure: false,
+      maxRetries: 0,
+      notify: false,
+      webhookUrl: '',
+      dryRun: false,
+      timezone: 'UTC'
+    });
+
+    expect(setFailedSpy).not.toHaveBeenCalled();
+    expect(setOutputSpy).toHaveBeenCalledWith('buildStatus', 'SUCCESS');
+  });
+
   it('fails without retries and notifies on build failure', async () => {
     createBuildMock.mockResolvedValue({ code: 'C1' });
     getBuildMock.mockResolvedValue({
@@ -310,5 +357,26 @@ describe('index run', () => {
 
     expect(buildNotificationMock).toHaveBeenCalledWith('BUILD_FAIL', expect.any(Object));
     expect(setFailedSpy).toHaveBeenCalledWith('Build failed after 1 retries');
+  });
+
+  it('ignores non-Error rejections', async () => {
+    createBuildMock.mockRejectedValue('boom');
+
+    const { setFailedSpy, setOutputSpy } = await setupIndex({
+      token: 'token',
+      subscriptionCode: 'sub',
+      branch: 'main',
+      buildName: 'Build',
+      checkStatusInterval: 1,
+      retryOnFailure: false,
+      maxRetries: 0,
+      notify: false,
+      webhookUrl: '',
+      dryRun: false,
+      timezone: 'UTC'
+    });
+
+    expect(setFailedSpy).not.toHaveBeenCalled();
+    expect(setOutputSpy).not.toHaveBeenCalled();
   });
 });

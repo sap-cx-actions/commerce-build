@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
 import { BuildRequest, BuildResponse, BuildStatus, NotificationType, BuildProgress } from '@sap-cx-actions/models';
-import { BuildService } from '@sap-cx-actions/commerce-services';
+import { BuildService, validateInputs } from '@sap-cx-actions/commerce-services';
 import { Notifier } from '@sap-cx-actions/notifier';
-import { addSummary, buildNotification, getInputs, getWorkflowRunUrl, validateInputs } from './utils';
+import { addSummary, buildNotification, getInputs, getWorkflowRunUrl } from './utils';
 
 export async function run(): Promise<void> {
   let buildCode: string | undefined;
@@ -13,7 +13,7 @@ export async function run(): Promise<void> {
 
   try {
     core.info('Triggering the CCv2 Cloud build');
-    const input = getInputs;
+    const input = getInputs();
 
     // Validate required inputs
     validateInputs({

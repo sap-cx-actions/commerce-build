@@ -111,21 +111,10 @@ describe('utils', () => {
 
   it('getInputs falls back to empty strings when env vars are missing', () => {
     const { utils } = loadUtils({ envOverrides: { token: '', subCode: '', webhookUrl: '' } });
-    expect(utils.getInputs.token).toBe('');
-    expect(utils.getInputs.subscriptionCode).toBe('');
-    expect(utils.getInputs.webhookUrl).toBe('');
-  });
-
-  it('validateInputs throws a combined error for missing values', () => {
-    const { utils } = loadUtils();
-    expect(() => utils.validateInputs({ token: '', subscriptionCode: '' })).toThrow(
-      "Validation Failed: 'token' is required., 'subscriptionCode' is required."
-    );
-  });
-
-  it('validateInputs passes when required values are present', () => {
-    const { utils } = loadUtils();
-    expect(() => utils.validateInputs({ token: 't', subscriptionCode: 's' })).not.toThrow();
+    const inputs = utils.getInputs();
+    expect(inputs.token).toBe('');
+    expect(inputs.subscriptionCode).toBe('');
+    expect(inputs.webhookUrl).toBe('');
   });
 
   it('buildNotification includes workflow URL and timezone', () => {

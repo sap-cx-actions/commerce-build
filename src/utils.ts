@@ -18,7 +18,7 @@ export function getWorkflowRunUrl(): string {
   return `${serverUrl}/${repo.owner}/${repo.repo}/actions/runs/${runId}`;
 }
 
-export const getInputs: BuildInput = {
+export const getInputs = (): BuildInput => ({
   token: process.env.SAP_CCV2_API_TOKEN || '',
   subscriptionCode: process.env.SAP_CCV2_SUB_CODE || '',
   tokenEndpoint: process.env.SAP_CCV2_TOKEN_ENDPOINT || '',
@@ -34,30 +34,14 @@ export const getInputs: BuildInput = {
   webhookUrl: process.env.WEBHOOK_URL || '',
   dryRun: core.getBooleanInput('dryRun'),
   timezone: core.getInput('timezone')
-};
-
-export function validateInputs(inputs: { [key: string]: string }): void {
-  const errorMessages: string[] = [];
-
-  for (const [key, value] of Object.entries(inputs)) {
-    if (!value) {
-      const errorMessage = `'${key}' is required.`;
-      errorMessages.push(errorMessage);
-    }
-  }
-
-  if (errorMessages.length > 0) {
-    const errorMessage = `Validation Failed: ${errorMessages.join(', ')}`;
-    throw new Error(errorMessage);
-  }
-}
+});
 
 export function buildNotification(type: NotificationType, content: any): Notification {
   return {
     type: type,
     content: content,
     info: {
-      timezone: getInputs.timezone,
+      timezone: getInputs().timezone,
       workflowRunUrl: getWorkflowRunUrl()
     }
   };
