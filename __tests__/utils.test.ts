@@ -7,7 +7,7 @@ jest.mock('@sap-cx-actions/commerce-services', () => ({
     CX: {
       Actions: {
         DATE_FORMAT: 'YYYY-MM-DD HH:mm',
-        CLOUD_PORTAL_URL: 'https://portal.example.test'
+        CLOUD_PORTAL_API_URL: 'https://portal.example.test'
       }
     }
   }

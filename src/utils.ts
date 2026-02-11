@@ -21,6 +21,10 @@ export function getWorkflowRunUrl(): string {
 export const getInputs: BuildInput = {
   token: process.env.SAP_CCV2_API_TOKEN || '',
   subscriptionCode: process.env.SAP_CCV2_SUB_CODE || '',
+  tokenEndpoint: process.env.SAP_CCV2_TOKEN_ENDPOINT || '',
+  clientId: process.env.SAP_CCV2_CLIENT_ID || '',
+  clientSecret: process.env.SAP_CCV2_CLIENT_SECRET || '',
+  resource: process.env.SAP_CCV2_RESOURCE || '',
   branch: core.getInput('branch', { required: true }),
   buildName: getBuildName(core.getInput('branch'), core.getInput('buildName')),
   checkStatusInterval: parseInt(core.getInput('checkStatusInterval'), 10),
@@ -80,7 +84,7 @@ export async function addSummary(buildResponse: BuildResponse, buildProgress: Bu
     ])
     .addLink(
       'View in Cloud Portal',
-      SAP.CX.Actions.CLOUD_PORTAL_URL +
+      SAP.CX.Actions.CLOUD_PORTAL_API_URL +
         `/subscription/${buildResponse.subscriptionCode}/applications/commerce-cloud/builds/${buildResponse.code}`
     )
     .write();
